@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>Bau vs Didi Slap Game</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffd6e0, #ffe5ec);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header {
+            background: #ff4d6d;
+            color: white;
+            text-align: center;
+            padding: 18px;
+            font-size: clamp(24px, 5vw, 40px);
+            font-weight: bold;
+        }
+        
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: #ffe5ec;
+            padding: 15px;
+            font-size: clamp(18px, 4vw, 28px);
+            font-weight: bold;
+        }
+        
+        .health-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 15px;
+        }
+        
+        .health-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .health-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .health-bar {
+            width: 100%;
+            height: 24px;
+            background: #ddd;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            width: 100%;
+            transition: 0.5s;
+        }
+        
+        #bauHealth {
+            background: #4d96ff;
+        }
+        
+        #didiHealth {
+            background: #ff4d6d;
+        }
+        
+        .game-area {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            min-height: 420px;
+        }
+        
+        .character {
+            width: 300px;
+            max-width: 42vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .character img {
+            width: 100%;
+            height: auto;
+            max-height: 350px;
+            object-fit: contain;
+            transition: 0.3s;
+            display: block;
+        }
+        
+        .name {
+            margin-top: 10px;
+            font-size: clamp(26px, 5vw, 38px);
+            font-weight: bold;
+        }
+        
+        #bauName {
+            color: #4d96ff;
+        }
+        
+        #didiName {
+            color: #ff4d6d;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+        }
+        
+        button {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 15px;
+            background: #ff4d6d;
+            color: white;
+            font-size: clamp(18px, 4vw, 24px);
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            background: #e63956;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .message {
+            text-align: center;
+            padding: 10px 20px;
+            font-size: clamp(20px, 4vw, 30px);
+            font-weight: bold;
+            color: #555;
+            min-height: 70px;
+        }
+        
+        .level {
+            text-align: center;
+            font-size: clamp(18px, 4vw, 26px);
+            color: #ff4d6d;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: #777;
+            font-size: 16px;
+        }
+        
+        .effect {
+            position: fixed;
+            font-size: 60px;
+            animation: pop 1s ease forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        .shake {
+            animation: shake 0.4s;
+        }
+        
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-12px);
+            }
+            50% {
+                transform: translateX(12px);
+            }
+            75% {
+                transform: translateX(-12px);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+        
+        .slap {
+            animation: slap 0.5s;
+        }
+        
+        @keyframes slap {
+            0% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(-10deg);
+            }
+            50% {
+                transform: rotate(10deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+        /* iPhone Responsive */
+        
+        @media(max-width:768px) {
+            .game-area {
+                flex-direction: row;
+                align-items: flex-end;
+                justify-content: center;
+            }
+            .character {
+                width: 42%;
+            }
+            .character img {
+                max-height: 240px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            button {
+                width: 85%;
+            }
+        }
+        
+        @media(max-width:480px) {
+            .character {
+                width: 45%;
+            }
+            .character img {
+                max-height: 210px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="game-container">
+
+        <div class="header">
+            😂 Bau vs Didi Ultimate Slap Game 😂
+        </div>
+
+        <div class="scoreboard">
+
+            <div>
+                🏆 Bau Points:
+                <span id="bauScore">0</span>
+            </div>
+
+            <div>
+                👑 Didi Points:
+                <span id="didiScore">0</span>
+            </div>
+
+        </div>
+
+        <div class="health-container">
+
+            <div class="health-box">
+
+                <div class="health-title">
+                    💙 Bau Health
+                </div>
+
+                <div class="health-bar">
+
+                    <div class="health-fill" id="bauHealth"></div>
+
+                </div>
+
+            </div>
+
+            <div class="health-box">
+
+                <div class="health-title">
+                    💖 Didi Happiness
+                </div>
+
+                <div class="health-bar">
+
+                    <div class="health-fill" id="didiHealth"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="game-area">
+
+            <div class="character">
+
+                <!-- PUT YOUR IMAGE NAME HERE -->
+                <img id="bauImg" src="bau.jpeg">
+
+                <div class="name" id="bauName">
+                    Bau
+                </div>
+
+            </div>
+
+            <div class="character">
+
+                <!-- SAME IMAGE -->
+                <img id="didiImg" src="didi.jpeg">
+
+                <div class="name" id="didiName">
+                    Didi
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <button onclick="sayRandomWord()">
+            🎲 Random Word
+        </button>
+
+            <button onclick="megaSlap()">
+            👋 Mega Slap
+        </button>
+
+        </div>
+
+        <div class="level" id="levelText">
+
+            🌸 Level 1 - Cute Siblings
+
+        </div>
+
+        <div class="message" id="message">
+
+            Press a button to start 😂
+
+        </div>
+
+        <div class="footer">
+
+            ❤️ Best Sister Award Goes To Didi ❤️
+
+        </div>
+
+    </div>
+
+    <script>
+        let bauScore = 0;
+
+        let didiScore = 0;
+
+        let bauHealth = 100;
+
+        let didiHealth = 100;
+
+        const goodWords = [
+
+            "Beautiful",
+            "Queen",
+            "Cute",
+            "Sweet",
+            "Best Sister",
+            "Lovely",
+            "Amazing",
+            "Awesome"
+
+        ];
+
+        const badWords = [
+
+            "Drama Queen",
+            "Pagal",
+            "Greedy",
+            "Nautanki",
+            "Annoying",
+            "Lazy"
+
+        ];
+
+        function sayRandomWord() {
+
+            const isGood = Math.random() > 0.5;
+
+            const bauImg =
+                document.getElementById("bauImg");
+
+            const didiImg =
+                document.getElementById("didiImg");
+
+            const message =
+                document.getElementById("message");
+
+            if (isGood) {
+
+                const word =
+                    goodWords[Math.floor(
+                        Math.random() * goodWords.length)];
+
+                bauScore += 10;
+
+                didiHealth += 5;
+
+                if (didiHealth > 100) {
+
+                    didiHealth = 100;
+                }
+
+                message.innerHTML =
+                    `😊 Bau said "<b>${word}</b>"<br>💖 Bau gets points`;
+
+                createEffect("💖");
+
+                playSound(600);
+
+            } else {
+
+                const word =
+                    badWords[Math.floor(
+                        Math.random() * badWords.length)];
+
+                didiScore += 15;
+
+                bauHealth -= 10;
+
+                if (bauHealth < 0) {
+
+                    bauHealth = 0;
+                }
+
+                message.innerHTML =
+                    `😡 Bau said "<b>${word}</b>"<br>👋 Didi slapped Bau`;
+
+                bauImg.classList.add("shake");
+
+                didiImg.classList.add("slap");
+
+                createEffect("👋");
+
+                playSound(200);
+
+                setTimeout(() => {
+
+                    bauImg.classList.remove("shake");
+
+                    didiImg.classList.remove("slap");
+
+                }, 500);
+
+            }
+
+            updateGame();
+
+        }
+
+        function megaSlap() {
+
+            didiScore += 30;
+
+            bauHealth -= 20;
+
+            if (bauHealth < 0) {
+
+                bauHealth = 0;
+            }
+
+            document.getElementById("message")
+                .innerHTML =
+                "💥 Didi used MEGA SLAP 😂";
+
+            document.getElementById("bauImg")
+                .classList.add("shake");
+
+            createEffect("💥");
+
+            playSound(100);
+
+            setTimeout(() => {
+
+                document.getElementById("bauImg")
+                    .classList.remove("shake");
+
+            }, 500);
+
+            updateGame();
+
+        }
+
+        function updateGame() {
+
+            document.getElementById("bauScore")
+                .innerText = bauScore;
+
+            document.getElementById("didiScore")
+                .innerText = didiScore;
+
+            document.getElementById("bauHealth")
+                .style.width = bauHealth + "%";
+
+            document.getElementById("didiHealth")
+                .style.width = didiHealth + "%";
+
+            updateLevel();
+
+        }
+
+        function updateLevel() {
+
+            const level =
+                document.getElementById("levelText");
+
+            if (bauScore >= 100) {
+
+                level.innerHTML =
+                    "🏆 Legendary Brother";
+
+            } else if (bauScore >= 70) {
+
+                level.innerHTML =
+                    "🔥 Sweetest Brother";
+
+            } else if (bauScore >= 40) {
+
+                level.innerHTML =
+                    "💖 Caring Bau";
+
+            } else if (bauScore >= 20) {
+
+                level.innerHTML =
+                    "🌸 Funny Brother";
+
+            }
+
+        }
+
+        function createEffect(emoji) {
+
+            const effect =
+                document.createElement("div");
+
+            effect.classList.add("effect");
+
+            effect.innerHTML = emoji;
+
+            effect.style.left =
+                Math.random() * window.innerWidth + "px";
+
+            effect.style.top =
+                Math.random() * window.innerHeight + "px";
+
+            document.body.appendChild(effect);
+
+            setTimeout(() => {
+
+                effect.remove();
+
+            }, 1000);
+
+        }
+
+        function playSound(freq) {
+
+            const audio =
+                new(window.AudioContext ||
+                    window.webkitAudioContext)();
+
+            const osc =
+                audio.createOscillator();
+
+            osc.type = "sine";
+
+            osc.frequency.value = freq;
+
+            osc.connect(audio.destination);
+
+            osc.start();
+
+            osc.stop(audio.currentTime + 0.1);
+
+        }
+
+        updateGame();
+    </script>
+
+</body>
+
+</html>
